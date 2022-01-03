@@ -1,5 +1,6 @@
 from re import findall, sub
 from json import dumps
+from typing import Optional, SupportsInt, Union
 
 
 class _Node:
@@ -20,66 +21,50 @@ class _Node:
 	class LinkedKeysError(ValueError):
 		pass
 
-	def replace_defined(self, function) -> str:
-		array = ['']
-		for letter in function.content:
-			if letter in '-+*/%=()[]{} ':
-				array.extend((letter, ''))
-			else:
-				array[-1] += letter
+	def _replace_defined(self, function) -> str:
+		return ''.join(str(repr(x) if (x := self.countable.get(part)) else part) for part in self._split(function))
 
-		return ''.join(str(self.countable.get(part, part)) for part in filter(None, array))
+	def _find_expressions(self, string: Optional[str]) -> list:
+		return findall(self.pattern, string) if isinstance(string, str) else []
 
-	def find_expressions(self, string) -> list:
-		if isinstance(string, str):
-			return findall(self.pattern, string)
-		return []
-
-	def recheck(self, value):
-		if self.countable.get(value.key):
-			if value.expressions_into:
-				del value.countable[value.key]
-			else:
-				self.countable[value.key] = value.showing_value
-		elif not value.expressions_into:
+	def _recheck(self, value):
+		if value.expressions_into and self.countable.get(value.key):
+			del value.countable[value.key]
+		else:
 			self.countable[value.key] = value.showing_value
 
-	def deep(self, way):
-		lines = self.graph_map[way[-1]]
+	def _deep(self, way: Union[list, tuple]):
+		lines = self.graph_map.get(way[-1], set())
 		if set(way) & set(lines):
 			trace = ' -> '.join(way + [way[0]])
 			raise self.LinkedKeysError(f'Your keys link themselves in loop! Trace is: {trace}')
 		for node in lines:
-			self.deep(way + [node])
+			self._deep(way + [node])
 
 	@staticmethod
-	def find_where(iterable: list, *, key, count=None) -> list:
+	def _split(string: Optional[str]):
+		array = ['']
+		for letter in string:
+			if letter in '-+*/%=()[]{} ':
+				array.extend((letter, ''))
+			else:
+				array[-1] += letter
+		return filter(None, array)
+
+	@staticmethod
+	def find_where(iterable: Union[list, tuple], *, key, count: Optional[SupportsInt] = None) -> Optional[list]:
 		if count is None:
 			count = len(iterable)
-		found = []
-
-		for i in iterable:
-			if key(i) and count:
-				count -= 1
-				found.append(i)
-
-		return found
-
-	@staticmethod
-	def eval_value(string):
-		try:
-			return True, eval(str(string))
-		except (NameError, TypeError):
-			return False, string
+		return [i for i in iterable if key(i) and (count := count - 1)]
 
 
 class _HyperValue(_Node):
 	def __init__(self, *, key):
-		self.value = self.__showing_value = self.obj[key]
+		self.value = self.obj[key]
 		self.key = key
 		self.expressions_into = [
 			_HyperFunction(parent=self, start=(start := self.value.index(exp)), end=start + len(exp))
-			for exp in self.find_expressions(self.value)
+			for exp in self._find_expressions(self.value)
 		]
 
 		if not self.expressions_into:
@@ -88,69 +73,78 @@ class _HyperValue(_Node):
 		self.values.append(self)
 		self.functions.extend(self.expressions_into)
 
-	@property
-	def showing_value(self):
-		if self.countable.get(self.key):
-			return self.__showing_value
-		return sub(self.pattern, '{}', str(self.value)).format(*self.expressions_into)
-
-	@showing_value.setter
-	def showing_value(self, value):
-		self.__showing_value = value
-
 	def __repr__(self):
 		return self.showing_value
 
 	def __str__(self):
 		return str(self.showing_value)
 
+	@property
+	def showing_value(self):
+		return self.value if self.countable.get(self.key) else sub(self.pattern, '{}', str(self.value)).format(*self.expressions_into)
+
 	def try_to_count(self):
 		for function in self.expressions_into:
-			if function.answer == self._Unknown:
-				temp_content = self.replace_defined(function)
-				if function.content != temp_content:
-					function.answer = self.eval_value(temp_content)[-1]
+			if (set(self.countable) & function.expr_parts) == function.expr_parts:
+				function.answer = self._replace_defined(function.content)
+				try:
+					function.answer = eval(function.answer)
+				except (NameError, TypeError, SyntaxError):
+					pass
 		self.commit()
 
 	def commit(self):
-		if isinstance(self.value, str) and sub(self.pattern, '', self.value):
-			val = self.showing_value
+		val = self.showing_value
+		if not sub(self.pattern, '', str(self.value)):
+			try:
+				val = eval(val)
+			except (NameError, TypeError, SyntaxError):
+				pass
+		for f in self.expressions_into:
+			if isinstance(f.answer, self._Unknown):
+				break
 		else:
-			_, val = self.eval_value(str(self.showing_value))
+			self.countable[self.key] = val
 
 		self.obj[self.key] = val
-		if not isinstance(self.showing_value, str) or not self.find_expressions(val):
-			self.countable[self.key] = val
-		return val
 
 	def update(self, value):
 		for func in self.expressions_into:
 			self.functions.remove(func)
 
-		self.value = self.__showing_value = value
+		self.value = value
 
 		self.expressions_into = [
 			_HyperFunction(parent=self, start=(start := value.index(exp)), end=start + len(exp))
-			for exp in self.find_expressions(value)
+			for exp in self._find_expressions(value)
 		]
 
 		if self.expressions_into:
 			self.functions.extend(self.expressions_into)
 
-		self.recheck(self)
+		self._recheck(self)
+
+		links = set()
+		for ex in self.expressions_into:
+			links = links.union(ex.expr_parts)
+		self.graph_map[self.key] = links
+
+		for i in self.expressions_into:
+			self._deep([i])
+
 		self.try_to_count()
 
-		def complete(value_key):  # count in deep
+		def complete(value_key):
 			for val in self.values:
 				save_it = False
 				for expr in val.expressions_into:
 					if value_key in expr.expr_parts:
-						expr.answer = self._Unknown
+						expr.answer = self._Unknown()
 						save_it = True
 				if save_it:
-					self.recheck(val)
+					self._recheck(val)
 					val.try_to_count()
-					complete(val.key)  # recursion
+					complete(val.key)
 
 		complete(self.key)
 
@@ -160,18 +154,21 @@ class _HyperFunction(_Node):
 		self.start, self.end = start, end
 		self.parent = parent
 		self.content = self.parent.value[start + 2:end - 2]
-		self.expr_parts = set(findall(r'[A-zА-я][0-9A-zА-я]*', self.content))
-		self.answer = self._Unknown if self.expr_parts else eval(self.content)
+		self.expr_parts = {i for i in findall(r'[A-zА-я][0-9A-zА-я]*', self.content) if self.obj.get(i)}
+		self.answer = self._Unknown() if self.expr_parts else eval(self.content)
+
+	def get_original(self):
+		return self.parent.value[self.start + 2:self.end - 2]
 
 	def __repr__(self):
-		return repr(self.answer if not isinstance(self.answer, self._Unknown) else self.content)
+		return repr(self.answer if not isinstance(self.answer, self._Unknown) else self.get_original())
 
 	def __str__(self):
-		return str(self.answer if not isinstance(self.answer, self._Unknown) else self.content)
+		return str(self.answer if not isinstance(self.answer, self._Unknown) else self.get_original())
 
 
 class HyperDict(_Node):
-	def __init__(self, /, obj: dict = None, *, dynamic=True, debug=True):
+	def __init__(self, /, obj: Optional[dict], *, dynamic: Optional[bool] = True, debug: Optional[bool] = True):
 		if obj is None:
 			obj = {}
 
@@ -190,15 +187,23 @@ class HyperDict(_Node):
 			self.graph_map[key] = links
 
 		if self.graph_map:
-			self.deep([list(self.graph_map)[0]])
+			for i in self.graph_map:
+				self._deep([i])
 
-		self.count()
+		x = len(self.__obj)
+		while x > len(self.countable):
+			for value in self.values:
+				if not self.countable.get(value.key):
+					value.try_to_count()
+
+	def __eq__(self, other):
+		return self == other
 
 	def __getitem__(self, item):
 		return self.__obj[item]
 
-	def __setitem__(self, key, value):
-		if vals := self.find_where(self.values, key=lambda x: x.key == key):
+	def __setitem__(self, key: str, value):
+		if self.__dynamic and (vals := self.find_where(self.values, key=lambda x: x.key == key)):
 			vals[0].update(value)
 		else:
 			self.obj[key] = value
@@ -213,37 +218,15 @@ class HyperDict(_Node):
 	def __iter__(self):
 		return self.__obj.__iter__()
 
-	def count(self, *, values=None):
-		if values is None:
-			values = self.values
-		x = len(self.__obj)
-		while x > len(self.countable):
-			for value in values:
-				value.try_to_count()
-
 	def items(self):
 		return self.__obj.items()
 
-	def get(self, value, default=None):
+	def get(self, value: str, default=None):
 		return self.__obj.get(value, default=default)
 
-	def dumps(self, *, indent=4):
+	def dumps(self, *, indent: int = 4):
 		return dumps(self.__obj, indent=indent, ensure_ascii=False)
 
 
 if __name__ == '__main__':
-	func = lambda x: x < 15
-
-	dictionary = HyperDict(
-		{
-			'a': 5,
-			'b': 10,
-			'c': '$(a + b)$',
-			'd': '$(func(c))$',
-			'e': 'Len of range($(c)$) is $(len(range(c)))$',
-			'f': [1, 2, 3],
-			'g': '$(f * 2)$'
-		}
-	)
-	print(dictionary.dumps(indent=5))
-	print('@MAde by AlexLovser. Thanks for using!')
+	print('@ Made by Alex Lovser. Thanks for using!')
