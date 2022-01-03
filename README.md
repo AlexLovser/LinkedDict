@@ -1,24 +1,24 @@
-#Hyper Dictionary
+# Hyper Dictionary
 
 Advanced python dictionary(hash-table), which can link it-self keys and make calculations into the keys of the dict
-##Installation
+## Installation
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 ```bash
 pip install HyperDict
 ```
-##Usage
+## Usage
 
-###The syntax of expressions:
+### The syntax of expressions:
 ```python
 {'key' : '...$(expression)$...'}
 ```
-###Initialization:
+### Initialization:
 ```python
 from HyperDict import HyperDict
 from json import dumps
 dictionary = HyperDict({}) # {} - your dict
 ```
-###Examples:
+### Examples:
 ```python
 example = Hyperdict(
     {
@@ -105,7 +105,7 @@ print(dumps(example))
     }
 ```
 
-###Changing:
+### Changing:
 ```python
 example = Hyperdict(
     {
@@ -124,7 +124,7 @@ print(example)
 
 # !!! 'b' links 'a', but 'a' doesn't link 'b'
 ```
-##Warning
+## Warning
 ```python
 # Keys of your dict must be only strings
 {5: 'abc', True: []} # is prohibited
