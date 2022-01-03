@@ -1,5 +1,4 @@
 from re import findall, sub
-from json import dumps
 from typing import Optional, SupportsInt, Union
 
 
@@ -223,9 +222,6 @@ class HyperDict(_Node):
 
 	def get(self, value: str, default=None):
 		return self.__obj.get(value, default=default)
-
-	def dumps(self, *, indent: int = 4):
-		return dumps(self.__obj, indent=indent, ensure_ascii=False)
 
 
 if __name__ == '__main__':
