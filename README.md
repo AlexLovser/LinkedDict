@@ -1,4 +1,5 @@
 #Hyper Dictionary
+
 Advanced python dictionary(hash-table), which can link it-self keys and make calculations into the keys of the dict
 ##Installation
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
