@@ -1,0 +1,10 @@
+LICENCE
+README.md
+setup.cfg
+setup.py
+Linked_Dict.egg-info/PKG-INFO
+Linked_Dict.egg-info/SOURCES.txt
+Linked_Dict.egg-info/dependency_links.txt
+Linked_Dict.egg-info/top_level.txt
+linked_dict/__init__.py
+linked_dict/linked_dict.py

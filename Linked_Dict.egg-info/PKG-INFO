@@ -1,3 +1,28 @@
+Metadata-Version: 2.1
+Name: Linked-Dict
+Version: 0.0.1
+Summary: Advanced Python Dictionary which can link it-self keys into it-self values
+Home-page: https://github.com/AlexLovser/LinkedDict
+Author: Alex Lovser
+Author-email: tabalex2005@gmail.com
+License: Apache Licence, Version 2.0, see LICENCE file
+Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.1.zip
+Keywords: python types dictionary dict hashmap hashtable self-link
+Platform: Windows
+Platform: Linux
+Platform: OSX
+Classifier: Operating System :: OS Independent
+Classifier: Intended Audience :: End Users/Desktop
+Classifier: Intended Audience :: Developers
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Classifier: Programming Language :: Python :: Implementation :: PyPy
+Classifier: Programming Language :: Python :: Implementation :: CPython
+Description-Content-Type: text/markdown
+License-File: LICENCE
+
 # Linked Dictionary
 
 Advanced python dictionary(hash-table), which can link it-self keys and make calculations into the keys of the dict
@@ -122,7 +147,7 @@ print(example)
 example['a'] = 'another_val'
 print(example)
 # >>> {'a': 'another_val', 'b': 'another_val'}
-example['b'] = '4'
+example['a'] = '4'
 print(example) 
 # >>> {'a': 'another_val', 'b': 4}
 
@@ -144,3 +169,4 @@ Please make sure to update tests as appropriate.
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
