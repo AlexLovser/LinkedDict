@@ -5,7 +5,7 @@ Summary: Advanced Python Dictionary which can link it-self keys into it-self val
 Home-page: https://github.com/AlexLovser/LinkedDict
 Author: Alex Lovser
 Author-email: tabalex2005@gmail.com
-License: Apache Licence, Version 2.0, see LICENCE file
+License: Apache Licence, Version 2.0, see LICENSE file
 Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.2.zip
 Keywords: python types dictionary dict hashmap hashtable self-link
 Platform: Windows

@@ -19,12 +19,12 @@ setup(
     url="https://github.com/AlexLovser/LinkedDict",
     download_url='https://github.com/AlexLovser/LinkedDict/archive/v{}.zip'.format(version),
 
-    license='Apache Licence, Version 2.0, see LICENCE file',
+    license='Apache Licence, Version 2.0, see LICENSE file',
 
     packages=['linked_dict'],
     platforms=['Windows', 'Linux', 'OSX'],
     keywords='python types dictionary dict hashmap hashtable self-link',
-
+    requires=[],
     classifiers=[
         "Operating System :: OS Independent",
         "Intended Audience :: End Users/Desktop",
