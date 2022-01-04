@@ -6,7 +6,7 @@ with open("README.md", "r") as fh:
 version = "0.0.2"
 
 setup(
-    name="Linked Dict",
+    name="linked-dict",
     version=version,
 
     author="Alex Lovser",
