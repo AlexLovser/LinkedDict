@@ -122,7 +122,7 @@ print(example)
 example['a'] = 'another_val'
 print(example)
 # >>> {'a': 'another_val', 'b': 'another_val'}
-example['a'] = '4'
+example['b'] = '4'
 print(example) 
 # >>> {'a': 'another_val', 'b': 4}
 
