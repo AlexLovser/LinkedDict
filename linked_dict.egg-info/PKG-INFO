@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
 Name: linked-dict
-Version: 0.0.1
+Version: 0.0.2
 Summary: Advanced Python Dictionary which can link it-self keys into it-self values
 Home-page: https://github.com/AlexLovser/LinkedDict
 Author: Alex Lovser
 Author-email: tabalex2005@gmail.com
 License: Apache Licence, Version 2.0, see LICENSE file
-Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.1.zip
+Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.2.zip
 Keywords: python types dictionary dict hashmap hashtable self-link
 Platform: Windows
 Platform: Linux
@@ -29,7 +29,7 @@ Advanced python dictionary(hash-table), which can link it-self keys and make cal
 ## Installation
 Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
 ```bash
-pip install linked_dict
+pip install linked-dict
 ```
 ## Usage
 
@@ -122,8 +122,10 @@ example = LinkedDict(
     {
         'a': 5,
         'b': '$(some_func(a))$'
-    }
-)
+    },
+    loc=locals(), # to be able to use your functions
+    glob=globals() # to be able to use your functions
+) 
 
 print(dumps(example))
 

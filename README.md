@@ -97,8 +97,10 @@ example = LinkedDict(
     {
         'a': 5,
         'b': '$(some_func(a))$'
-    }
-)
+    },
+    loc=locals(), # to be able to use your functions
+    glob=globals() # to be able to use your functions
+) 
 
 print(dumps(example))
 

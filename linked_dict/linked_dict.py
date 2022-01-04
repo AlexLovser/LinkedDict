@@ -70,7 +70,7 @@ class _LinkedValue:
 			if (set(self.obj.countable) & function.expr_parts) == function.expr_parts:
 				function.answer = self._replace_defined(function.content)
 				try:
-					function.answer = eval(function.answer)
+					function.answer = eval(function.answer, self.obj.loc, self.obj.glob)
 				except (NameError, TypeError, SyntaxError):
 					pass
 		self.commit()
@@ -79,7 +79,7 @@ class _LinkedValue:
 		val = self.showing_value
 		if not sub(self.obj.pattern, '', str(self.value)):
 			try:
-				val = eval(val)
+				val = eval(val, self.obj.loc, self.obj.glob)
 			except (NameError, TypeError, SyntaxError):
 				pass
 		for f in self.expressions_into:
@@ -138,7 +138,7 @@ class _LinkedFunction:
 		self.parent = parent
 		self.content = self.parent.value[start + 2:end - 2]
 		self.expr_parts = {i for i in findall(r'[A-zА-я][0-9A-zА-я]*', self.content) if self.parent.obj.get(i)}
-		self.answer = Unknown() if self.expr_parts else eval(self.content)
+		self.answer = Unknown() if self.expr_parts else eval(self.content, self.parent.obj.loc, self.parent.obj.glob)
 
 	def get_original(self):
 		return self.parent.value[self.start + 2:self.end - 2]
@@ -151,7 +151,7 @@ class _LinkedFunction:
 
 
 class LinkedDict:
-	def __init__(self, /, original: Optional[dict], *, dynamic: Optional[bool] = True, debug: Optional[bool] = True):
+	def __init__(self, /, original: Optional[dict], *, dynamic: Optional[bool] = True, debug: Optional[bool] = True, loc=None, glob=None):
 		self.values = []
 		self.functions = []
 		self.countable = {}
@@ -161,6 +161,8 @@ class LinkedDict:
 		self.debug = debug
 		self.graph_map = {}
 		self.original = original if original else {}
+		self.loc = loc if loc else locals()
+		self.glob = glob if glob else globals()
 
 		for key, value in self.original.items():
 			v = _LinkedValue(key=key, obj=self)
@@ -224,11 +226,4 @@ class LinkedDict:
 
 
 if __name__ == '__main__':
-	d = LinkedDict(
-		{
-			'a': 5,
-			'b': '$(xx(a))$',
-		}
-	)
-	print(d)
 	print('(c) Made by Alex Lovser. Thanks for using!')
