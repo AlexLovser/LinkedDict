@@ -1,12 +1,12 @@
 Metadata-Version: 2.1
-Name: Linked-Dict
-Version: 0.0.2
+Name: linked-dict
+Version: 0.0.3
 Summary: Advanced Python Dictionary which can link it-self keys into it-self values
 Home-page: https://github.com/AlexLovser/LinkedDict
 Author: Alex Lovser
 Author-email: tabalex2005@gmail.com
 License: Apache Licence, Version 2.0, see LICENSE file
-Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.2.zip
+Download-URL: https://github.com/AlexLovser/LinkedDict/archive/v0.0.3.zip
 Keywords: python types dictionary dict hashmap hashtable self-link
 Platform: Windows
 Platform: Linux

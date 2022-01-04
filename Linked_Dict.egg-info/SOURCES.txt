@@ -8,3 +8,7 @@ Linked_Dict.egg-info/dependency_links.txt
 Linked_Dict.egg-info/top_level.txt
 linked_dict/__init__.py
 linked_dict/linked_dict.py
+linked_dict.egg-info/PKG-INFO
+linked_dict.egg-info/SOURCES.txt
+linked_dict.egg-info/dependency_links.txt
+linked_dict.egg-info/top_level.txt
