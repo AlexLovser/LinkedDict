@@ -1,5 +1,6 @@
-from re import findall, sub
+from re import findall, compile
 from typing import Optional, SupportsInt, Union
+from json import dumps
 
 
 class Unknown:
@@ -49,7 +50,7 @@ class _LinkedValue:
 		)
 
 	def _find_expressions(self, string: Optional[str]) -> list:
-		return findall(self.obj.pattern, string) if isinstance(string, str) else []
+		return self.obj.pattern.findall(string) if isinstance(string, str) else []
 
 	@staticmethod
 	def _split(string: Optional[str]):
@@ -63,7 +64,7 @@ class _LinkedValue:
 
 	@property
 	def showing_value(self):
-		return self.value if self.obj.countable.get(self.key) else sub(self.obj.pattern, '{}', str(self.value)).format(*self.expressions_into)
+		return self.value if self.obj.countable.get(self.key) else self.obj.pattern.sub('{}', str(self.value)).format(*self.expressions_into)
 
 	def try_to_count(self):
 		for function in self.expressions_into:
@@ -77,7 +78,7 @@ class _LinkedValue:
 
 	def commit(self):
 		val = self.showing_value
-		if not sub(self.obj.pattern, '', str(self.value)):
+		if not self.obj.pattern.sub('', str(self.value)):
 			try:
 				val = eval(val, self.obj.loc, self.obj.glob)
 			except (NameError, TypeError, SyntaxError):
@@ -156,7 +157,7 @@ class LinkedDict:
 		self.functions = []
 		self.countable = {}
 		self.graph_map = {}
-		self.pattern = r'\$\([A-zА-я0-9\-+*/%={}()\s\[\].,:\'"]+\)\$'
+		self.pattern = compile(r'\$\([A-zА-я0-9\-+*/%={}()\s\[\].,:\'"]+\)\$')
 		self.dynamic = dynamic
 		self.debug = debug
 		self.graph_map = {}
@@ -214,7 +215,7 @@ class LinkedDict:
 		# print('lines', lines)
 		if set(way) & set(lines):
 			trace = ' -> '.join(way + [way[0]])
-			raise LinkedKeysError(f'Your keys link themselves in loop! Trace is: {trace}')
+			raise LinkedKeysError(f'Your keys link themselves in loop!\nTrace is: {trace}')
 		for node in lines:
 			self.deep(way + [node])
 
@@ -223,6 +224,14 @@ class LinkedDict:
 		if count is None:
 			count = len(iterable)
 		return [i for i in iterable if key(i) and (count := count - 1)]
+
+	@property
+	def dumps(self):
+		return dumps(
+			self.original,
+			indent=4,
+			ensure_ascii=False
+		)
 
 
 if __name__ == '__main__':
