@@ -91,7 +91,8 @@ print(dumps(example))
 ```
 Using your own functions into expressions:
 ```python
-some_func = lambda arg: arg + 1
+def some_func(arg):
+    return arg + 1
 
 example = LinkedDict(
     {
