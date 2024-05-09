@@ -30,7 +30,7 @@ example = LinkedDict(
     }
 )
 
-print(dumps(example))
+print(example)
 
     {
        'a': 5,
@@ -46,7 +46,7 @@ example = LinkedDict(
     }
 )
 
-print(dumps(example))
+print(example)
 
     {
        'a': 5,
@@ -64,7 +64,7 @@ example = LinkedDict(
     }
 )
 
-print(dumps(example))
+print(example)
 
     {
         'a': 5,
@@ -82,7 +82,7 @@ example = LinkedDict(
     }
 )
 
-print(dumps(example))
+print(example)
 
     {
         'a': ['one_item'],
@@ -103,7 +103,7 @@ example = LinkedDict(
     glob=globals() # to be able to use your functions
 ) 
 
-print(dumps(example))
+print(example)
 
     {
        'a': 5,
@@ -120,7 +120,7 @@ example = LinkedDict(
         'b': '$(a)$'
     }
 )
-print(example) 
+print(example)
 # >>> {'a': 5, 'b': 5}
 example['a'] = 'another_val'
 print(example)
